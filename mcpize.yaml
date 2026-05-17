@@ -9,7 +9,7 @@ runtime: typescript
 entry: src/index.ts
 
 build:
-  install: npm ci
+  install: npm install
   command: npm run build
 
 startCommand:
