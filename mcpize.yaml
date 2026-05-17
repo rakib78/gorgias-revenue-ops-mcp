@@ -3,26 +3,25 @@
 
 version: 1
 
-name: "Gorgias Revenue Ops"
-slug: "gorgias-revenue-ops"
+name: "gorgias-ecom-support-ops-mcp"
+slug: "gorgias-revenue-ops-mcp"
 
 runtime: typescript
-entry: "dist/index.js"
 
 build:
-  install: "npm install"
+  install: "npm ci"
   command: "npm run build"
 
 start:
   type: stdio
-  command: "node"
-  args:
-    - "dist/index.js"
-
-bridge:
-  mode: stdio
+  command: "node dist/index.js"
 
 credentials:
   - name: "GORGIAS_DOMAIN"
+    description: "Your Gorgias subdomain (e.g. mystore for mystore.gorgias.com)"
+    docs_url: "https://docs.gorgias.com/en-US/api-authentication-28406"
   - name: "GORGIAS_EMAIL"
-  - name: "GORGIAS_API_KEY"
+    description: "Agent or admin email for API authentication"
+  - name: "GORGIAS_API_TOKEN"
+    description: "API token from Gorgias Settings → REST API → Create API key"
+    docs_url: "https://docs.gorgias.com/en-US/api-authentication-28406"
