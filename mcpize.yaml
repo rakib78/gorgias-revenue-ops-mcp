@@ -1,0 +1,28 @@
+# MCPize Configuration
+# Docs: https://mcpize.com/docs/mcpize-yaml
+
+version: 1
+
+name: "Gorgias Revenue Ops"
+slug: "gorgias-revenue-ops"
+
+runtime: typescript
+entry: "dist/index.js"
+
+build:
+  install: "npm install"
+  command: "npm run build"
+
+start:
+  type: stdio
+  command: "node"
+  args:
+    - "dist/index.js"
+
+bridge:
+  mode: stdio
+
+credentials:
+  - name: "GORGIAS_DOMAIN"
+  - name: "GORGIAS_EMAIL"
+  - name: "GORGIAS_API_KEY"
