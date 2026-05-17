@@ -136,7 +136,8 @@ const Schemas = {
 
 // ─── Tool Definitions ─────────────────────────────────────────────────────────
 
-const TOOLS: Tool[] = [
+// Tool[] typing relaxed to avoid MCP SDK inputSchema property type conflicts
+const TOOLS: any[] = [
   {
     name: "gorgias_whoami",
     description: "Verify Gorgias connection, auth, user details, and Shopify integration status. Run this first.",
@@ -326,10 +327,9 @@ main().catch(err => { console.error("Fatal:", err); process.exit(1); });
 
 // ─── Minimal Zod → JSON Schema ────────────────────────────────────────────────
 
-type McpInputSchema = { type: "object"; properties?: Record<string, unknown>; required?: string[]; [key: string]: unknown };
-
-function toJsonSchema(schema: z.ZodTypeAny): McpInputSchema {
-  return zodToSchema(schema) as McpInputSchema;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function toJsonSchema(schema: z.ZodTypeAny): any {
+  return zodToSchema(schema);
 }
 
 function zodToSchema(s: z.ZodTypeAny): unknown {
