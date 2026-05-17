@@ -1,0 +1,40 @@
+version: 1
+name: gorgias-ecom-support-ops-mcp
+description: |
+  Production-safe Gorgias MCP for ecommerce support teams. Shopify order
+  context on every ticket, dry-run writes with confirm gate, SLA breach radar
+  with revenue weighting, NL macro authoring, and weekly ops + CSAT digest.
+
+runtime: typescript
+entry: src/index.ts
+
+build:
+  install: npm ci
+  command: npm run build
+
+startCommand:
+  type: stdio
+  command: node dist/index.js
+
+credentials:
+  - name: GORGIAS_DOMAIN
+    required: true
+    description: "Your Gorgias subdomain (e.g. mystore for mystore.gorgias.com)"
+    docs_url: https://docs.gorgias.com/en-US/api-authentication-28406
+    mapping:
+      env: GORGIAS_DOMAIN
+
+  - name: GORGIAS_EMAIL
+    required: true
+    description: "Agent or admin email for API authentication"
+    mapping:
+      env: GORGIAS_EMAIL
+
+  - name: GORGIAS_API_TOKEN
+    required: true
+    description: "API token from Gorgias Settings → REST API → Create API key"
+    docs_url: https://docs.gorgias.com/en-US/api-authentication-28406
+    mapping:
+      env: GORGIAS_API_TOKEN
+
+credentials_mode: per_user

@@ -1,168 +1,212 @@
-# gorgias-revenue-ops-mcp
+# Gorgias Ecommerce Support Ops MCP
 
-> Production-safe Gorgias MCP with dry-run writes, Shopify order context, SLA breach radar, and plain-language weekly CX summaries for DTC support teams.
+> Production-safe Gorgias MCP for Claude, Cursor, and any MCP-compatible AI assistant.
+> Shopify order context · Dry-run ticket writes · SLA breach radar · Revenue intelligence · NL macro authoring
 
-[![MCPize](https://img.shields.io/badge/MCPize-Listed-blue)](https://mcpize.com/mcp/gorgias-revenue-ops-mcp)
+[![MCPize](https://img.shields.io/badge/MCPize-Marketplace-blue)](https://mcpize.com/mcp/gorgias-ecom-support-ops-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ---
 
-## What this does
+## Why this server exists
 
-Connect Claude (or any MCP client) to your Gorgias helpdesk with **enterprise-grade safety**. Every write action shows a dry-run preview first. Every execution requires explicit confirmation. And unlike every other Gorgias MCP, this one surfaces the **linked Shopify order value** directly inside ticket context — so your agents always know what's at stake before they act.
+Every Gorgias MCP that exists today is basic ticket CRUD — no Shopify context, no safety gates, no SLA intelligence, no macro authoring. This server is built for D2C ecommerce teams where a $2,400 LTV customer sending a $30 refund request needs a different response than a first-time buyer, and where an AI making an unreviewed change to a live ticket is a real problem.
 
-### Tools
+**What makes this different:**
 
-| Tool | Type | Description |
-|------|------|-------------|
-| `gorgias_whoami` | Read | Auth probe + Shopify integration check |
-| `search_tickets` | Read | Filter by status, channel, tag, agent, free text |
-| `get_ticket` | Read | Full ticket + linked Shopify order value & status |
-| `preview_ticket_update` | Dry-run | Compute diff — nothing applied |
-| `execute_ticket_update` | Write | Apply changes; `confirm: true` required |
-| `add_internal_note` | Write | Private note; dry-run by default |
-| `list_sla_breaches` | Read | Breach radar ranked by time remaining |
-| `get_revenue_snapshot` | Read | CSAT, channel mix, top tags, resolution rate |
-| `weekly_cx_summary` | Read | Plain-language Monday memo for managers |
-| `create_macro_from_spec` | Write | Natural language → Gorgias macro; dry-run default |
+| Gap in existing tools | What this server does |
+|-----------------------|-----------------------|
+| No Shopify context on tickets | Order history, LTV, tier assessment on every ticket |
+| Write access without guardrails | Every write defaults to dry-run + explicit `confirm: true` gate |
+| No SLA intelligence | Breach radar ranked by wait time with revenue weighting |
+| Macro authoring requires UI | Natural language → validated actions[] → preview → create |
+| No revenue reporting | Weekly digest includes customer LTV at stake per ticket cohort |
 
 ---
 
-## Quickstart
+## Tools (14 total)
 
-### 1. Clone & install
+### Connection
+| Tool | Description |
+|------|-------------|
+| `gorgias_whoami` | Verify auth, user role, and Shopify integration status |
 
-```bash
-git clone https://github.com/YOUR_USERNAME/gorgias-revenue-ops-mcp.git
-cd gorgias-revenue-ops-mcp
-npm install
-```
+### Tickets
+| Tool | Description |
+|------|-------------|
+| `search_tickets` | Search by keyword, status, channel, assignee, or tag |
+| `get_ticket` | Full ticket with Shopify order context and last messages |
+| `preview_ticket_update` | **Dry-run** diff of proposed changes — nothing applied |
+| `execute_ticket_update` | Apply changes (requires `confirm: true`) |
+| `add_internal_note` | Add private note (dry-run default) |
 
-### 2. Configure credentials
+### Customers
+| Tool | Description |
+|------|-------------|
+| `get_customer` | Profile + Shopify LTV, order count, tier assessment |
+| `search_customers` | Find customers by name or email |
 
-```bash
-cp .env.example .env
-```
+### SLA
+| Tool | Description |
+|------|-------------|
+| `list_sla_breaches` | Open tickets ranked by breach risk with customer LTV context |
+| `explain_ticket_sla` | Per-ticket SLA story: FRT, wait, CSAT, risk verdict |
 
-Edit `.env`:
+### Reporting
+| Tool | Description |
+|------|-------------|
+| `weekly_support_summary` | Volume, resolution rate, channels, top tags, SLA health, CSAT, revenue at stake |
 
-```env
-GORGIAS_DOMAIN=mystore.gorgias.com
-GORGIAS_EMAIL=admin@mystore.com
-GORGIAS_API_KEY=your_api_key_here
-```
+### Macros
+| Tool | Description |
+|------|-------------|
+| `create_macro_from_spec` | NL or JSON spec → validated actions[] → dry-run → create |
+| `list_macros` | Browse macro library |
+| `get_macro` | Fetch macro definition |
 
-**Get your Gorgias API key:** Settings → REST API → Generate API key (admin role recommended).
+---
 
-### 3. Build
+## Quick Start
 
-```bash
-npm run build
-```
+### 1. Get a Gorgias API token
 
-### 4. Connect to Claude Desktop
+In Gorgias: **Settings → REST API → Create API Key**
 
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+Keep your subdomain handy — it's the part before `.gorgias.com`.
+
+### 2. Add to Claude Desktop
+
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
-    "gorgias-revenue-ops": {
-      "command": "node",
-      "args": ["/absolute/path/to/gorgias-revenue-ops-mcp/dist/index.js"],
+    "gorgias-support-ops": {
+      "command": "npx",
+      "args": ["-y", "gorgias-ecom-support-ops-mcp"],
       "env": {
-        "GORGIAS_DOMAIN": "mystore.gorgias.com",
-        "GORGIAS_EMAIL": "admin@mystore.com",
-        "GORGIAS_API_KEY": "your_api_key_here"
+        "GORGIAS_DOMAIN": "your-subdomain",
+        "GORGIAS_EMAIL": "you@yourstore.com",
+        "GORGIAS_API_TOKEN": "your_api_token_here"
       }
     }
   }
 }
 ```
 
-Restart Claude Desktop. Type `gorgias_whoami` to confirm connection.
+Restart Claude Desktop. Run `gorgias_whoami` to confirm the connection.
 
-### 5. Inspect / test locally
+### 3. Or use via MCPize
 
-```bash
-npm run inspect
-```
-
-Opens MCP Inspector in your browser — run any tool interactively before connecting to Claude.
+Subscribe at [mcpize.com/mcp/gorgias-ecom-support-ops-mcp](https://mcpize.com/mcp/gorgias-ecom-support-ops-mcp) — enter your credentials once and get a hosted MCP endpoint.
 
 ---
 
-## Example prompts
+## Example Conversations
 
+**Morning triage:**
 ```
-Show me all open tickets tagged "refund" assigned to Sarah
+"Show me all open tickets that haven't been updated in 24 hours"
+→ list_sla_breaches hours_without_update:24
+
+"Tell me the full SLA story on ticket 55123"
+→ explain_ticket_sla ticket_id:55123
 ```
+
+**High-value customer handling:**
 ```
-Get ticket 12345 — what Shopify order is linked to it?
+"Look up customer jane@brandx.com"
+→ get_customer email:jane@brandx.com
+→ Returns: $4,200 LTV, 12 orders, 🏆 High-value
+
+"Get ticket 55123 with her order context"
+→ get_ticket ticket_id:55123
 ```
+
+**Safe ticket update:**
 ```
-Preview closing ticket 12345 and removing the "urgent" tag
+"Preview closing ticket 55123 and adding tag resolved-refund"
+→ preview_ticket_update ticket_id:55123 changes:{status:"closed", tags_add:["resolved-refund"]}
+
+"Looks good, apply it"
+→ execute_ticket_update ticket_id:55123 changes:{...} confirm:true
 ```
+
+**Macro from spec:**
 ```
-List all SLA breaches right now, ranked by how overdue they are
+"Create a macro called 'Refund Approved': add tag refund-approved, send message
+ 'Your refund has been processed and will appear in 3-5 business days.', close ticket"
+→ create_macro_from_spec name:"Refund Approved" spec:"..." dry_run:true
+→ [review actions]
+→ create_macro_from_spec ... dry_run:false
 ```
+
+**Weekly report:**
 ```
-Give me a weekly CX summary for the week of 2025-05-12
-```
-```
-Create a macro called "Refund Approved" that closes the ticket,
-tags it refund-resolved, and adds an internal note saying approved
+"Give me the weekly summary for the week starting 2025-01-13"
+→ weekly_support_summary week_start:2025-01-13
 ```
 
 ---
 
-## Safety model
-
-All write tools follow a **two-step confirm pattern**:
-
-1. Call `preview_ticket_update` (or any tool with `dry_run: true`) → review the diff
-2. Call `execute_ticket_update` with `confirm: true` → change applied + audit note logged
-
-`dry_run` defaults to `true` on all write tools. Nothing touches production unless you explicitly confirm.
-
----
-
-## Environment variables
+## Environment Variables
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `GORGIAS_DOMAIN` | ✅ | Your Gorgias subdomain e.g. `mystore.gorgias.com` |
-| `GORGIAS_EMAIL` | ✅ | Admin email address |
-| `GORGIAS_API_KEY` | ✅ | Gorgias REST API key (admin role) |
+| `GORGIAS_DOMAIN` | ✅ | Subdomain only — e.g. `acme` for `acme.gorgias.com` |
+| `GORGIAS_EMAIL` | ✅ | Agent or admin email |
+| `GORGIAS_API_TOKEN` | ✅ | API token from Gorgias Settings → REST API |
 
 ---
 
-## Development
+## Safety Model
+
+- **All writes default to dry-run** — `preview_ticket_update`, `add_internal_note`, and `create_macro_from_spec` preview before applying
+- **Explicit confirm gate** — `execute_ticket_update` requires `confirm: true` or it blocks with a clear message
+- **Rate limit handling** — 429 responses backed off automatically with `Retry-After` guidance
+- **Structured auth errors** — missing scopes explained clearly, not silent failures
+
+---
+
+## Shopify Integration
+
+Shopify context (LTV, order count, tags, last order) appears automatically on `get_ticket`, `get_customer`, `list_sla_breaches`, and `weekly_support_summary` when:
+
+1. Your Gorgias account has the **Shopify integration connected**
+2. Tickets are linked to customers with Shopify purchase history
+
+If no Shopify data appears, verify the integration in **Gorgias Settings → Integrations → Shopify**.
+
+---
+
+## Local Development
 
 ```bash
-npm run dev       # tsx watch — live reload
-npm run build     # compile to dist/
-npm run inspect   # MCP Inspector UI
+git clone https://github.com/rakib78/gorgias-ecom-support-ops-mcp
+cd gorgias-ecom-support-ops-mcp
+npm install
+
+export GORGIAS_DOMAIN=your-subdomain
+export GORGIAS_EMAIL=you@yourstore.com
+export GORGIAS_API_TOKEN=your_token
+
+npm run dev
 ```
 
----
+Build for production:
+```bash
+npm run build && npm start
+```
 
-## Roadmap
-
-- [ ] OAuth multi-tenant flow (agency use)
-- [ ] Webhook-driven real-time SLA signals
-- [ ] WooCommerce / BigCommerce order context
-- [ ] Revenue-weighted ticket queue prioritisation
-- [ ] Per-agent performance breakdown in weekly digest
+Test with MCP Inspector:
+```bash
+npx @modelcontextprotocol/inspector node dist/index.js
+```
 
 ---
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — Built by [Md Rakibul Islam](https://mdrakibulislam.com)
 
----
-
-## MCPize
-
-Available on [MCPize marketplace](https://mcpize.com/mcp/gorgias-revenue-ops-mcp) with hosted deployment, BYOK setup, and tiered pricing.
+Zendesk Top Admin · Shopify Expert · Upwork Top Rated Plus · 21,000+ hours · 50+ CRM & ecommerce implementations.

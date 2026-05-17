@@ -1,0 +1,44 @@
+{
+  "name": "gorgias-ecom-support-ops-mcp",
+  "version": "1.0.0",
+  "description": "Production-safe Gorgias MCP with Shopify order context, dry-run ticket writes, CSAT & revenue intelligence, SLA breach radar, and NL macro authoring for ecommerce support teams.",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "gorgias-ecom-support-ops-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "gorgias",
+    "ecommerce",
+    "shopify",
+    "customer-support",
+    "helpdesk",
+    "sla",
+    "csat",
+    "support-ops",
+    "d2c",
+    "woocommerce"
+  ],
+  "author": "Md Rakibul Islam",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
