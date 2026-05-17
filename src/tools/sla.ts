@@ -8,6 +8,7 @@ interface GorgiasTicketStub {
   channel: string;
   created_datetime: string;
   updated_datetime: string;
+  closed_datetime?: string;
   last_message_datetime?: string;
   tags: Array<{ id: number; name: string }>;
   assignee_user?: { id: number; name: string };

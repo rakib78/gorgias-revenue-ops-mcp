@@ -326,8 +326,10 @@ main().catch(err => { console.error("Fatal:", err); process.exit(1); });
 
 // ─── Minimal Zod → JSON Schema ────────────────────────────────────────────────
 
-function toJsonSchema(schema: z.ZodTypeAny): Record<string, unknown> {
-  return zodToSchema(schema) as Record<string, unknown>;
+type McpInputSchema = { type: "object"; properties?: Record<string, unknown>; required?: string[]; [key: string]: unknown };
+
+function toJsonSchema(schema: z.ZodTypeAny): McpInputSchema {
+  return zodToSchema(schema) as McpInputSchema;
 }
 
 function zodToSchema(s: z.ZodTypeAny): unknown {
